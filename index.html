@@ -3,19 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Zll Algs/Your Cube Trainer!</title>
+    <title>Zll Algs - Speedcube Trainer</title>
     <style>
         :root {
-            --bg-dark: #0f172a;
-            --bg-card: #1e293b;
-            --bg-soft: #162032;
-            --text-main: #f8fafc;
+            --bg-dark: #0b0f19;
+            --bg-card: #131c2e;
+            --bg-soft: #1a263f;
+            --text-main: #f1f5f9;
             --text-muted: #94a3b8;
-            --accent: #3b82f6;
-            --yellow: #eab308;
-            --green: #22c55e;
-            --orange: #f97316;
-            --border: #283548;
+            --accent: #3b82f6; /* Mavi Yüz */
+            --cube-yellow: #eab308;
+            --cube-red: #ef4444;
+            --cube-green: #22c55e;
+            --cube-orange: #f97316;
+            --border: #22324f;
         }
 
         html.light-mode {
@@ -24,7 +25,8 @@
             --bg-soft: #f1f5f9;
             --text-main: #0f172a;
             --text-muted: #64748b;
-            --border: #e2e8f0;
+            --accent: #2563eb;
+            --border: #cbd5e1;
         }
 
         * {
@@ -39,6 +41,10 @@
             background-color: var(--bg-dark);
             color: var(--text-main);
             padding-bottom: 50px;
+            /* Küp temalı hafif grid arka plan efekti */
+            background-image: linear-gradient(rgba(59, 130, 246, 0.03) 1px, transparent 1px),
+                              linear-gradient(90deg, rgba(59, 130, 246, 0.03) 1px, transparent 1px);
+            background-size: 30px 30px;
         }
 
         header {
@@ -50,25 +56,44 @@
             justify-content: space-between;
             align-items: center;
             gap: 1rem;
+            border-bottom: 2px solid var(--border);
+            background: var(--bg-card);
+            border-radius: 0 0 1.5rem 1.5rem;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
         }
 
         .header-right {
             display: flex;
             align-items: center;
             gap: 0.75rem;
+            flex-wrap: wrap;
         }
 
         .site-title {
-            font-size: 1.6rem;
-            font-weight: 800;
+            font-size: 1.7rem;
+            font-weight: 900;
             letter-spacing: -0.5px;
             color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        /* Küp renklerinden oluşan logo noktası */
+        .site-title::before {
+            content: '';
+            display: inline-block;
+            width: 14px;
+            height: 14px;
+            background: linear-gradient(135deg, var(--cube-red), var(--cube-yellow), var(--cube-blue), var(--cube-green));
+            border-radius: 4px;
+            box-shadow: 0 0 10px rgba(239, 68, 68, 0.5);
         }
 
         .nav-tabs {
             display: flex;
             gap: 0.4rem;
-            background: var(--bg-card);
+            background: var(--bg-soft);
             padding: 0.35rem;
             border-radius: 999px;
             border: 1px solid var(--border);
@@ -78,7 +103,7 @@
             background: transparent;
             border: none;
             color: var(--text-muted);
-            padding: 0.5rem 1.3rem;
+            padding: 0.5rem 1.2rem;
             border-radius: 999px;
             cursor: pointer;
             font-weight: 600;
@@ -88,25 +113,23 @@
         .tab-btn.active {
             background: var(--accent);
             color: white;
+            box-shadow: 0 2px 10px rgba(59, 130, 246, 0.4);
         }
 
         .theme-btn {
-            background: var(--bg-card);
+            background: var(--bg-soft);
             border: 1px solid var(--border);
             color: var(--text-main);
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
+            padding: 0.5rem 1.1rem;
+            border-radius: 999px;
             cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.1rem;
+            font-size: 0.85rem;
+            font-weight: 600;
         }
 
         .container {
             max-width: 1100px;
-            margin: 0.5rem auto;
+            margin: 1.5rem auto;
             padding: 0 1.5rem;
         }
 
@@ -121,36 +144,38 @@
             background: var(--bg-card);
             border: 1px solid var(--border);
             color: var(--text-muted);
-            padding: 0.4rem 1rem;
+            padding: 0.45rem 1.1rem;
             border-radius: 999px;
             cursor: pointer;
             font-size: 0.85rem;
+            font-weight: 600;
         }
 
         .filter-btn.active {
-            border-color: var(--accent);
-            color: white;
-            background: rgba(59, 130, 246, 0.2);
+            border-color: var(--cube-yellow);
+            color: var(--cube-yellow);
+            background: rgba(234, 179, 8, 0.1);
         }
 
         .alg-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 1rem;
+            gap: 1.1rem;
         }
 
         .alg-card {
             background: var(--bg-card);
             border: 1px solid var(--border);
             border-radius: 1.5rem;
-            padding: 1.1rem;
+            padding: 1.25rem;
             display: flex;
             gap: 1rem;
             align-items: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
         }
 
-        .alg-card.learned { border-color: rgba(34, 197, 94, 0.5); }
-        .alg-card.learning { border-color: rgba(249, 115, 22, 0.5); }
+        .alg-card.learned { border-left: 5px solid var(--cube-green); }
+        .alg-card.learning { border-left: 5px solid var(--cube-orange); }
 
         .cube-viz {
             width: 78px;
@@ -176,49 +201,53 @@
         }
 
         .status-pill {
-            background: var(--bg-dark);
+            background: var(--bg-soft);
             color: var(--text-muted);
             border: 1px solid var(--border);
-            padding: 0.2rem 0.65rem;
+            padding: 0.25rem 0.75rem;
             border-radius: 999px;
             font-size: 0.75rem;
             cursor: pointer;
             outline: none;
+            font-weight: 600;
         }
 
-        .alg-card.learned .status-pill { color: var(--green); border-color: rgba(34, 197, 94, 0.4); }
-        .alg-card.learning .status-pill { color: var(--orange); border-color: rgba(249, 115, 22, 0.4); }
+        .alg-card.learned .status-pill { color: var(--cube-green); border-color: rgba(34, 197, 94, 0.4); }
+        .alg-card.learning .status-pill { color: var(--cube-orange); border-color: rgba(249, 115, 22, 0.4); }
 
         .alg-notation {
             font-family: 'Consolas', monospace;
             font-size: 0.92rem;
-            color: var(--yellow);
-            background: var(--bg-dark);
+            color: var(--cube-yellow);
+            background: var(--bg-soft);
             padding: 0.55rem 0.85rem;
             border-radius: 1rem;
             word-break: break-word;
+            border: 1px solid var(--border);
         }
 
+        /* Trainer View */
         .trainer-box {
             background: var(--bg-card);
             border: 1px solid var(--border);
             border-radius: 2rem;
             padding: 2.5rem 1.5rem;
             text-align: center;
-            max-width: 600px;
+            max-width: 650px;
             margin: 1rem auto;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.2);
         }
 
         .trainer-top {
             display: flex;
             justify-content: center;
             gap: 0.75rem;
-            margin-bottom: 2rem;
+            margin-bottom: 1.5rem;
             flex-wrap: wrap;
         }
 
         select.pill-select {
-            background: var(--bg-dark);
+            background: var(--bg-soft);
             color: var(--text-main);
             border: 1px solid var(--border);
             padding: 0.6rem 1.2rem;
@@ -237,51 +266,149 @@
             font-size: 0.9rem;
             font-weight: 600;
             cursor: pointer;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
         }
 
         .btn-ghost {
-            background: var(--bg-dark);
+            background: var(--bg-soft);
             color: var(--text-muted);
             border: 1px solid var(--border);
             padding: 0.6rem 1.4rem;
             border-radius: 999px;
             font-size: 0.9rem;
             cursor: pointer;
+            font-weight: 600;
         }
 
         .trainer-viz {
-            width: 140px;
-            height: 140px;
-            margin: 0 auto 1.5rem auto;
+            width: 130px;
+            height: 130px;
+            margin: 0 auto 1rem auto;
         }
 
         .scramble-display {
-            font-family: 'Arial', monospace;
-            font-size: 1.2rem;
-            color: var(--text-muted);
-            background: var(--bg-dark);
+            font-family: 'Consolas', monospace;
+            font-size: 1.15rem;
+            color: var(--cube-yellow);
+            background: var(--bg-soft);
             padding: 0.9rem 1.2rem;
             border-radius: 1.25rem;
-            margin-bottom: 1.5rem;
+            margin-bottom: 1rem;
+            border: 1px solid var(--border);
+            letter-spacing: 1px;
         }
 
         .timer-display {
-            font-family: 'Arial', monospace;
+            font-family: 'Consolas', monospace;
             font-size: 3.8rem;
-            font-weight: 700;
-            margin: 0.5rem 0 1.5rem 0;
+            font-weight: 900;
+            margin: 0.3rem 0 1rem 0;
             user-select: none;
             cursor: pointer;
         }
 
-        .timer-running { color: var(--green); }
-        .timer-ready { color: var(--green); }
+        .timer-running { color: var(--cube-green); text-shadow: 0 0 20px rgba(34, 197, 94, 0.4); }
+        .timer-ready { color: var(--cube-yellow); text-shadow: 0 0 20px rgba(234, 179, 8, 0.4); }
+
+        .trainer-stats-row {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin: 1rem 0;
+            flex-wrap: wrap;
+        }
+
+        .stat-box {
+            background: var(--bg-soft);
+            border: 1px solid var(--border);
+            padding: 0.6rem 1.2rem;
+            border-radius: 1rem;
+            font-size: 0.9rem;
+            font-family: 'Consolas', monospace;
+            font-weight: 600;
+        }
+
+        .solve-history-container {
+            margin-top: 1.2rem;
+            text-align: left;
+            background: var(--bg-soft);
+            padding: 1rem 1.2rem;
+            border-radius: 1.25rem;
+            border: 1px solid var(--border);
+            max-height: 110px;
+            overflow-y: auto;
+        }
+
+        .solve-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.4rem;
+            margin-top: 0.5rem;
+        }
+
+        .solve-tag {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            padding: 0.25rem 0.6rem;
+            border-radius: 0.6rem;
+            font-family: 'Consolas', monospace;
+            font-size: 0.8rem;
+            color: var(--cube-yellow);
+        }
 
         .solution-box {
-            margin-top: 1.5rem;
-            padding: 1rem;
-            background: var(--bg-dark);
+            margin-top: 1.2rem;
+            padding: 1.1rem;
+            background: var(--bg-soft);
             border-radius: 1.25rem;
+            border: 1px solid var(--border);
+        }
+
+        /* Guide View (Hangi Küp?) */
+        .guide-container {
+            max-width: 800px;
+            margin: 1rem auto;
+        }
+
+        .guide-grid {
+            display: grid;
+            gap: 1.5rem;
+        }
+
+        .guide-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 1.75rem;
+            padding: 1.75rem;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+            border-left: 5px solid var(--accent);
+        }
+
+        .guide-card h3 {
+            color: var(--cube-yellow);
+            margin-bottom: 0.5rem;
+            font-size: 1.25rem;
+        }
+
+        .guide-list {
+            list-style: none;
+            padding-left: 0;
+            margin-top: 1rem;
+            display: grid;
+            gap: 0.75rem;
+        }
+
+        .guide-item {
+            background: var(--bg-soft);
+            padding: 0.9rem 1.2rem;
+            border-radius: 1rem;
+            border: 1px solid var(--border);
+            font-size: 0.95rem;
+        }
+
+        .guide-item strong {
+            color: var(--text-main);
+            font-weight: 700;
         }
 
         .hidden { display: none !important; }
@@ -296,8 +423,9 @@
             <button class="tab-btn active" onclick="switchTab('oll', this)">OLL</button>
             <button class="tab-btn" onclick="switchTab('pll', this)">PLL</button>
             <button class="tab-btn" onclick="switchTab('trainer', this)">Trainer</button>
+            <button class="tab-btn" onclick="switchTab('guide', this)">Hangi Küp?</button>
         </div>
-        <button class="theme-btn" id="theme-toggle" onclick="toggleTheme()">☀️</button>
+        <button class="theme-btn" id="theme-toggle" onclick="toggleTheme()">Koyu Mod</button>
     </div>
 </header>
 
@@ -331,11 +459,63 @@
 
             <div class="timer-display" id="timer">0.00</div>
 
+            <div class="trainer-stats-row">
+                <div class="stat-box">Ao5: <span id="ao5-display">-</span></div>
+                <div class="stat-box">Ao12: <span id="ao12-display">-</span></div>
+            </div>
+
             <button class="btn-ghost" id="reveal-btn" onclick="revealSolution()">Algoritmayı Göster</button>
 
+            <div class="solve-history-container">
+                <div style="font-size: 0.85rem; color: var(--text-muted); display: flex; justify-content: space-between; align-items: center; font-weight: 600;">
+                    <span>Çözüm Geçmişi</span>
+                    <button onclick="clearHistory()" style="background:transparent; border:none; color:var(--cube-red); cursor:pointer; font-size:0.75rem; font-weight:700;">Temizle</button>
+                </div>
+                <div id="solve-list" class="solve-list">
+                    <span style="font-size: 0.8rem; color: var(--text-muted);">Henüz çözüm yok</span>
+                </div>
+            </div>
+
             <div class="solution-box hidden" id="solution-box">
-                <div id="sol-name" style="font-weight: 700; margin-bottom: 0.4rem;"></div>
-                <div id="sol-alg" style="font-family: Consolas, monospace; color: var(--yellow); font-size: 1.15rem;"></div>
+                <div id="sol-name" style="font-weight: 700; margin-bottom: 0.4rem; color: var(--cube-yellow);"></div>
+                <div id="sol-alg" style="font-family: Consolas, monospace; color: var(--text-main); font-size: 1.15rem;"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- HANGİ KÜP? -->
+    <div id="guide-view" class="hidden">
+        <div class="guide-container">
+            <div class="guide-grid">
+                <div class="guide-card">
+                    <h3>Sub-30 ile Sub-20 Arası</h3>
+                    <p style="color: var(--text-muted); font-size: 0.9rem;">Temel teknikleri oturtmak ve parmak hızını artırmak için ideal fiyat/performans modelleri:</p>
+                    <ul class="guide-list">
+                        <li class="guide-item"><strong>RS3M V5:</strong> Piyasann en popüler ve fiyat/performans oranı en yüksek başlangıç/orta seviye küpü.</li>
+                        <li class="guide-item"><strong>Gan 356M:</strong> Pürüzsüz dönme hissi ve güvenilir Gan mekanizması.</li>
+                        <li class="guide-item"><strong>QiYi M Pro V2:</strong> Dengeli mıknatıs yapısıyla akıcı ve konforlu çözümler sunar.</li>
+                    </ul>
+                </div>
+
+                <div class="guide-card">
+                    <h3>Sub-20 ile Sub-10 Arası</h3>
+                    <p style="color: var(--text-muted); font-size: 0.9rem;">İleri düzey hız, mükemmel köşe kesme (corner cutting) ve kişiselleştirilebilir ayar sistemleri:</p>
+                    <ul class="guide-list">
+                        <li class="guide-item"><strong>Weilong V10 / V11:</strong> Yüksek hız kapasitesi ve gelişmiş mekanik yapısıyla rekabetçi çözücüler için.</li>
+                        <li class="guide-item"><strong>Gan V100 / Flagship Modeller:</strong> Hassas ayar seçenekleri ve üstün hissiyat.</li>
+                        <li class="guide-item"><strong>Aolong V5:</strong> Klasik efsane serinin modern teknolojiyle güncellenmiş hali.</li>
+                        <li class="guide-item"><strong>Tornado V5:</strong> Sessiz, yumuşak dönüşü ve son dönemin en popüler tercihleri arasında yer alır.</li>
+                    </ul>
+                </div>
+
+                <div class="guide-card">
+                    <h3>Sub-10 Altı (Elit Seviye)</h3>
+                    <p style="color: var(--text-muted); font-size: 0.9rem;">Dünya standartlarında yarışanlar ve en uç performansı, maksimum stabiliteyi arayanlar:</p>
+                    <ul class="guide-list">
+                        <li class="guide-item"><strong>Ferrocore:</strong> Ultra özelleştirilebilir çekirdek ve benzersiz mekanik yapı.</li>
+                        <li class="guide-item"><strong>PiCube V11:</strong> Profesyonel hız çözümleri için özel modifiye edilmiş yüksek performans serileri.</li>
+                    </ul>
+                </div>
             </div>
         </div>
     </div>
@@ -346,13 +526,15 @@
 const savedTheme = localStorage.getItem('zll_theme') || 'dark';
 if (savedTheme === 'light') {
     document.documentElement.classList.add('light-mode');
-    document.getElementById('theme-toggle').innerText = '🌙';
+    document.getElementById('theme-toggle').innerText = 'Açık Mod';
+} else {
+    document.getElementById('theme-toggle').innerText = 'Koyu Mod';
 }
 
 function toggleTheme() {
     const isLight = document.documentElement.classList.toggle('light-mode');
     localStorage.setItem('zll_theme', isLight ? 'light' : 'dark');
-    document.getElementById('theme-toggle').innerText = isLight ? '🌙' : '☀️';
+    document.getElementById('theme-toggle').innerText = isLight ? 'Açık Mod' : 'Koyu Mod';
     renderGrid();
     if (currentTrainerAlg) {
         document.getElementById('trainer-cube').innerHTML = renderCubeSVG(currentTrainerAlg);
@@ -446,11 +628,14 @@ const ALGORITHMS = [
 let currentTab = 'oll';
 let currentFilter = 'all';
 let userProgress = {};
+let solveHistory = [];
 
 try {
     userProgress = JSON.parse(localStorage.getItem('zll_algs_progress')) || {};
+    solveHistory = JSON.parse(localStorage.getItem('zll_solve_history')) || [];
 } catch (e) {
     userProgress = {};
+    solveHistory = [];
 }
 
 let currentTrainerAlg = null;
@@ -463,9 +648,9 @@ function renderCubeSVG(algObj) {
     const p = algObj.pattern;
     const isLight = document.documentElement.classList.contains('light-mode');
     const yellow = '#eab308';
-    const gray = isLight ? '#cbd5e1' : '#283548';
-    const bg = isLight ? '#f8fafc' : '#0f172a';
-    const arrowColor = isLight ? '#0f172a' : '#0f172a';
+    const gray = isLight ? '#cbd5e1' : '#1f2d48';
+    const bg = isLight ? '#f8fafc' : '#0b0f19';
+    const arrowColor = isLight ? '#0f172a' : '#f1f5f9';
     
     let svg = `<svg viewBox="0 0 110 110" width="100%" height="100%">
         <rect x="0" y="0" width="110" height="110" rx="20" fill="${bg}"/>`;
@@ -518,12 +703,17 @@ function switchTab(tab, btnElement) {
     document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
     if (btnElement) btnElement.classList.add('active');
 
+    document.getElementById('library-view').classList.add('hidden');
+    document.getElementById('trainer-view').classList.add('hidden');
+    document.getElementById('guide-view').classList.add('hidden');
+
     if (tab === 'trainer') {
-        document.getElementById('library-view').classList.add('hidden');
         document.getElementById('trainer-view').classList.remove('hidden');
         if (!currentTrainerAlg) nextCase();
+        updateStatsDisplay();
+    } else if (tab === 'guide') {
+        document.getElementById('guide-view').classList.remove('hidden');
     } else {
-        document.getElementById('trainer-view').classList.add('hidden');
         document.getElementById('library-view').classList.remove('hidden');
         renderGrid();
     }
@@ -631,7 +821,47 @@ function stopTimer() {
     clearInterval(timerInterval);
     isRunning = false;
     document.getElementById('timer').className = 'timer-display';
+    
+    const finalTime = parseFloat(((Date.now() - startTime) / 1000).toFixed(2));
+    solveHistory.unshift(finalTime);
+    try {
+        localStorage.setItem('zll_solve_history', JSON.stringify(solveHistory));
+    } catch (e) {}
+
+    updateStatsDisplay();
     revealSolution();
+}
+
+function calculateAverage(arr, count) {
+    if (arr.length < count) return '-';
+    const subset = arr.slice(0, count).sort((a, b) => a - b);
+    const trimmed = subset.slice(1, count - 1);
+    const sum = trimmed.reduce((acc, val) => acc + val, 0);
+    return (sum / trimmed.length).toFixed(2);
+}
+
+function updateStatsDisplay() {
+    const ao5 = calculateAverage(solveHistory, 5);
+    const ao12 = calculateAverage(solveHistory, 12);
+
+    document.getElementById('ao5-display').innerText = ao5;
+    document.getElementById('ao12-display').innerText = ao12;
+
+    const listEl = document.getElementById('solve-list');
+    if (solveHistory.length === 0) {
+        listEl.innerHTML = `<span style="font-size: 0.8rem; color: var(--text-muted);">Henüz çözüm yok</span>`;
+        return;
+    }
+
+    listEl.innerHTML = solveHistory.map(time => `<div class="solve-tag">${time.toFixed(2)}s</div>`).join('');
+}
+
+function clearHistory() {
+    if (confirm('Tüm çözüm geçmişi silinsin mi?')) {
+        solveHistory = [];
+        localStorage.removeItem('zll_solve_history');
+        updateStatsDisplay();
+    }
 }
 
 document.addEventListener('keydown', (e) => {
@@ -668,3 +898,7 @@ renderGrid();
 </script>
 </body>
 </html>
+     
+         
+  
+      
